@@ -30,7 +30,7 @@ public class MovePlayer : MonoBehaviour
     private bool canDash = true;
     public bool isDashing;
     private bool isKnockback;
-    private float lastFacingDirection = 1f; // Yönü hafızada tutar
+    private float lastFacingDirection = 1f;
 
     [Header("Can ve Mana")]
     public float playerHealth = 100f;
@@ -79,7 +79,7 @@ public class MovePlayer : MonoBehaviour
                 float moveInput = Input.GetAxisRaw("Horizontal");
                 if (moveInput != 0)
                 {
-                    lastFacingDirection = moveInput; // Yönü hafızaya aldık
+                    lastFacingDirection = moveInput;
                     rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
                     transform.localScale = new Vector3(moveInput > 0 ? 1 : -1, 1, 1);
                 }
@@ -90,7 +90,6 @@ public class MovePlayer : MonoBehaviour
 
                 Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 mousePos.z = 0f;
-                // Fareye göre yönelme
                 if (mousePos.x > transform.position.x) transform.localScale = new Vector3(1, 1, 1);
                 else transform.localScale = new Vector3(-1, 1, 1);
             }
@@ -188,7 +187,6 @@ public class MovePlayer : MonoBehaviour
         float originalGrav = rb.gravityScale;
         rb.gravityScale = 0f;
 
-        // Son bilinen yöne dash at
         rb.linearVelocity = new Vector2(lastFacingDirection * dashForce, 0f);
 
         yield return new WaitForSeconds(dashTime);
@@ -200,19 +198,23 @@ public class MovePlayer : MonoBehaviour
 
     public void TakeDamage(float amount, Vector2 knockbackDirection)
     {
+        // KORUMA KALKANI: Eğer zaten geri savruluyorsak, yeni hasar alma.
+        if (isKnockback) return;
+
         playerHealth -= amount;
         StartCoroutine(KnockbackRoutine());
+
         rb.linearVelocity = Vector2.zero;
-        rb.AddForce(new Vector2(knockbackDirection.x * yanaItmeGucu, yukariItmeGucu), ForceMode2D.Impulse);
+        Vector2 finalForce = new Vector2(knockbackDirection.x * yanaItmeGucu, knockbackDirection.y * yukariItmeGucu);
+        rb.AddForce(finalForce, ForceMode2D.Impulse);
+
         if (playerHealth <= 0) { playerHealth = 0; gameObject.SetActive(false); }
     }
 
     private IEnumerator KnockbackRoutine()
     {
         isKnockback = true;
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.2f); // Hasar arası bekleme süresi
         isKnockback = false;
     }
 }
-
-

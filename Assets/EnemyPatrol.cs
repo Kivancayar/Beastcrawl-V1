@@ -3,6 +3,8 @@ using UnityEngine;
 public class EnemyPatrol : MonoBehaviour
 {
     public float speed = 3f;
+    public float damage = 10f; // Hasar değeri
+    public float pushForce = 0.5f; // İtme kuvveti
     public Transform pointA;
     public Transform pointB;
     private Transform targetPoint;
@@ -28,10 +30,10 @@ public class EnemyPatrol : MonoBehaviour
             Vector2 pushDir = (collision.transform.position - transform.position).normalized;
 
             // 2. Karakteri biraz da havaya zıplatması için yukarı güç ekle
-            pushDir.y = 0.5f;
+            pushDir.y = pushForce;
 
             // 3. Hasarı ve hesapladığın bu yönü Player'a gönder
-            player.TakeDamage(10f, pushDir);
+            player.TakeDamage(damage, pushDir);
         }
     }
 }
