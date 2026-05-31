@@ -83,10 +83,7 @@ public class MovePlayer : MonoBehaviour
                     rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
                     transform.localScale = new Vector3(moveInput > 0 ? 1 : -1, 1, 1);
                 }
-                else
-                {
-                    rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
-                }
+                else rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
 
                 Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 mousePos.z = 0f;
@@ -106,27 +103,11 @@ public class MovePlayer : MonoBehaviour
                 playerMana += manaRegenSpeed * Time.deltaTime;
                 if (playerMana > 100) playerMana = 100;
             }
-
-            if (!isKnockback && firePoint != null)
-            {
-                Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                mousePos.z = 0f;
-                Vector2 lookDir = (mousePos - firePoint.position).normalized;
-                float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg;
-                if (transform.localScale.x < 0) angle += 180f;
-                firePoint.rotation = Quaternion.Euler(0, 0, angle);
-            }
         }
         else
         {
             rb.linearVelocity = Vector2.zero;
             rb.gravityScale = 0f;
-            if (firePoint != null)
-            {
-                float angle = Mathf.Atan2(lockedDirection.y, lockedDirection.x) * Mathf.Rad2Deg;
-                if (transform.localScale.x < 0) angle += 180f;
-                firePoint.rotation = Quaternion.Euler(0, 0, angle);
-            }
         }
 
         if (Input.GetKeyDown(KeyCode.F) && !isKnockback && !isDashing && playerMana > 5f)
@@ -134,11 +115,8 @@ public class MovePlayer : MonoBehaviour
             isCharging = true;
             isLaserFiring = false;
             currentChargeTimer = 0f;
-            if (laserLine != null) laserLine.enabled = false;
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             mousePosition.z = 0f;
-            if (mousePosition.x > transform.position.x) transform.localScale = new Vector3(1, 1, 1);
-            else transform.localScale = new Vector3(-1, 1, 1);
             lockedDirection = (mousePosition - firePoint.position).normalized;
         }
 
@@ -149,23 +127,20 @@ public class MovePlayer : MonoBehaviour
                 currentChargeTimer += Time.deltaTime;
                 if (currentChargeTimer >= 2f) isLaserFiring = true;
             }
-            else
+            else if (playerMana > 0)
             {
-                if (playerMana > 0)
+                playerMana -= laserManaCostPerSecond * Time.deltaTime;
+                Vector2 laserEndPoint = (Vector2)firePoint.position + ((Vector2)lockedDirection * laserRange);
+                RaycastHit2D hit = Physics2D.CircleCast(firePoint.position, 1f, lockedDirection, laserRange, canavarLayerMask);
+                if (hit.collider != null)
                 {
-                    playerMana -= laserManaCostPerSecond * Time.deltaTime;
-                    Vector2 laserEndPoint = (Vector2)firePoint.position + ((Vector2)lockedDirection * laserRange);
-                    RaycastHit2D hit = Physics2D.CircleCast(firePoint.position, 1f, lockedDirection, laserRange, canavarLayerMask);
-                    if (hit.collider != null)
-                    {
-                        laserEndPoint = hit.point;
-                        EnemyHealth enemy = hit.collider.GetComponent<EnemyHealth>();
-                        if (enemy != null) enemy.TakeDamage(laserDamage * Time.deltaTime);
-                    }
-                    if (laserLine != null) { laserLine.enabled = true; laserLine.SetPosition(0, firePoint.position); laserLine.SetPosition(1, laserEndPoint); }
+                    laserEndPoint = hit.point;
+                    EnemyPatrol enemy = hit.collider.GetComponent<EnemyPatrol>();
+                    if (enemy != null) enemy.TakeDamage(laserDamage * Time.deltaTime);
                 }
-                else StopLaserAndRelease();
+                if (laserLine != null) { laserLine.enabled = true; laserLine.SetPosition(0, firePoint.position); laserLine.SetPosition(1, laserEndPoint); }
             }
+            else StopLaserAndRelease();
         }
 
         if (Input.GetKeyUp(KeyCode.F) && isCharging) StopLaserAndRelease();
@@ -181,32 +156,26 @@ public class MovePlayer : MonoBehaviour
 
     private IEnumerator DashAction()
     {
-        canDash = false;
-        isDashing = true;
-        playerMana -= dashManaCost;
-        float originalGrav = rb.gravityScale;
-        rb.gravityScale = 0f;
-
+        canDash = false; isDashing = true; playerMana -= dashManaCost;
+        float originalGrav = rb.gravityScale; rb.gravityScale = 0f;
         rb.linearVelocity = new Vector2(lastFacingDirection * dashForce, 0f);
-
         yield return new WaitForSeconds(dashTime);
-        rb.gravityScale = originalGrav;
-        isDashing = false;
+        rb.gravityScale = originalGrav; isDashing = false;
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
     }
 
     public void TakeDamage(float amount, Vector2 knockbackDirection)
     {
-        // KORUMA KALKANI: Eğer zaten geri savruluyorsak, yeni hasar alma.
         if (isKnockback) return;
-
         playerHealth -= amount;
+
+        rb.isKinematic = true; // KİLİT: Stabilite için
         StartCoroutine(KnockbackRoutine());
+        rb.isKinematic = false;
 
         rb.linearVelocity = Vector2.zero;
-        Vector2 finalForce = new Vector2(knockbackDirection.x * yanaItmeGucu, knockbackDirection.y * yukariItmeGucu);
-        rb.AddForce(finalForce, ForceMode2D.Impulse);
+        rb.AddForce(new Vector2(knockbackDirection.x * yanaItmeGucu, knockbackDirection.y * yukariItmeGucu), ForceMode2D.Impulse);
 
         if (playerHealth <= 0) { playerHealth = 0; gameObject.SetActive(false); }
     }
@@ -214,7 +183,7 @@ public class MovePlayer : MonoBehaviour
     private IEnumerator KnockbackRoutine()
     {
         isKnockback = true;
-        yield return new WaitForSeconds(0.2f); // Hasar arası bekleme süresi
+        yield return new WaitForSeconds(0.2f);
         isKnockback = false;
     }
 }

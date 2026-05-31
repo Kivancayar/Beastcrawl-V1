@@ -477,9 +477,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a35a8d14d358b90428a9ddf2c4fa8416, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  health: 50
   speed: 2
   damage: 10
-  pushForce: 1
+  pushForce: 0.5
   pointA: {fileID: 1327737600}
   pointB: {fileID: 1437210030}
 --- !u!114 &163734317
@@ -1121,8 +1122,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   isCharging: 0
-  yanaItmeGucu: 8
-  yukariItmeGucu: 3
+  yanaItmeGucu: 15
+  yukariItmeGucu: 4
   dashForce: 20
   dashTime: 0.2
   dashCooldown: 1
