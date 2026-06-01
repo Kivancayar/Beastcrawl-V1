@@ -135,8 +135,8 @@ public class MovePlayer : MonoBehaviour
                 if (hit.collider != null)
                 {
                     laserEndPoint = hit.point;
-                    EnemyPatrol enemy = hit.collider.GetComponent<EnemyPatrol>();
-                    if (enemy != null) enemy.TakeDamage(laserDamage * Time.deltaTime);
+                    EnemyHealth enemyHealth = hit.collider.GetComponent<EnemyHealth>();
+                    if (enemyHealth != null) enemyHealth.TakeDamage(laserDamage * Time.deltaTime);
                 }
                 if (laserLine != null) { laserLine.enabled = true; laserLine.SetPosition(0, firePoint.position); laserLine.SetPosition(1, laserEndPoint); }
             }

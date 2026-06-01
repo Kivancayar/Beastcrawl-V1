@@ -2,40 +2,54 @@ using UnityEngine;
 
 public class EnemyPatrol : MonoBehaviour
 {
-    public float health = 50f;
-    public float speed = 3f;
+    public float speed = 2f;
     public float damage = 10f;
     public float pushForce = 0.5f;
+    public float detectionRange = 5f;
+    public Transform player;
     public Transform pointA;
     public Transform pointB;
-    private Transform targetPoint;
-    private float nextDamageTime = 0f; // KİLİT: Hız sabitleyici
 
-    void Start() { targetPoint = pointB; }
+    private Transform targetPoint;
+    private Rigidbody2D rb; // Fizik motoru için
+    private float nextDamageTime = 0f;
+
+    void Start()
+    {
+        targetPoint = pointB;
+        rb = GetComponent<Rigidbody2D>(); // Objeden Rigidbody2D bileşenini al
+    }
 
     void Update()
     {
-        Vector2 targetPos = new Vector2(targetPoint.position.x, transform.position.y);
-        transform.position = Vector2.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
-        if (Vector2.Distance(new Vector2(transform.position.x, 0), new Vector2(targetPoint.position.x, 0)) < 0.2f)
-            targetPoint = targetPoint == pointA ? pointB : pointA;
-    }
+        float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-    public void TakeDamage(float amount)
-    {
-        health -= amount;
-        if (health <= 0) Destroy(gameObject);
+        if (distanceToPlayer < detectionRange)
+        {
+            // OYUNCUYU TAKİP ET (Sadece X ekseninde)
+            float direction = (player.position.x > transform.position.x) ? 1 : -1;
+            rb.linearVelocity = new Vector2(direction * speed, rb.linearVelocity.y);
+        }
+        else
+        {
+            // DEVRIYE GEZ (Sadece X ekseninde)
+            float direction = (targetPoint.position.x > transform.position.x) ? 1 : -1;
+            rb.linearVelocity = new Vector2(direction * speed, rb.linearVelocity.y);
+
+            if (Mathf.Abs(transform.position.x - targetPoint.position.x) < 0.2f)
+                targetPoint = targetPoint == pointA ? pointB : pointA;
+        }
     }
 
     private void OnCollisionStay2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Player") && Time.time > nextDamageTime)
         {
-            MovePlayer player = collision.gameObject.GetComponent<MovePlayer>();
+            MovePlayer playerScript = collision.gameObject.GetComponent<MovePlayer>();
             Vector2 pushDir = (collision.transform.position - transform.position).normalized;
             pushDir.y = pushForce;
-            player.TakeDamage(damage, pushDir);
-            nextDamageTime = Time.time + 1f; // 1 saniye bekleme
+            playerScript.TakeDamage(damage, pushDir);
+            nextDamageTime = Time.time + 1f;
         }
     }
 }
