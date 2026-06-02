@@ -1,12 +1,12 @@
 using UnityEngine;
-using System.Collections; // Bunu eklemeyi unutma, Coroutine (IEnumerator) için şart!
+using System.Collections;
 
 public class CameraFollow : MonoBehaviour
 {
-    [Header("Takip Edilecek Player")]
+    [Header("Ayarlar")]
     public Transform player;
     public float smoothSpeed = 0.125f;
-    public Vector3 offset;
+    public Vector3 offset = new Vector3(0, 0, -10); // Varsayılan Z değeri
 
     [Header("Sarsıntı Ayarları")]
     public float sarsintiSuresi = 0.2f;
@@ -17,16 +17,18 @@ public class CameraFollow : MonoBehaviour
     {
         if (player == null) return;
 
+        // Hedef pozisyonu hesapla
         Vector3 desiredPosition = player.position + offset;
+        // Yumuşak geçiş
         Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
 
-        // Kameranın pozisyonunu hem takip hem sarsıntı ofsetine göre ayarla
+        // Pozisyonu uygula
         transform.position = smoothedPosition + sarsintiOfseti;
     }
 
-    // Sarsıntı fonksiyonu
     public IEnumerator Shake()
     {
+        Vector3 originalPos = Vector3.zero; // Sarsıntı sonrası merkeze dön
         float gecenSure = 0f;
 
         while (gecenSure < sarsintiSuresi)
@@ -40,6 +42,6 @@ public class CameraFollow : MonoBehaviour
             yield return null;
         }
 
-        sarsintiOfseti = Vector3.zero;
+        sarsintiOfseti = Vector3.zero; // Sarsıntıyı bitir
     }
 }

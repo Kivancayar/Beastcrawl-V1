@@ -11,34 +11,47 @@ public class EnemyPatrol : MonoBehaviour
     public Transform pointB;
 
     private Transform targetPoint;
-    private Rigidbody2D rb; // Fizik motoru için
+    private Rigidbody2D rb;
     private float nextDamageTime = 0f;
 
     void Start()
     {
         targetPoint = pointB;
-        rb = GetComponent<Rigidbody2D>(); // Objeden Rigidbody2D bileşenini al
+        rb = GetComponent<Rigidbody2D>();
     }
 
     void Update()
     {
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+        float direction;
 
         if (distanceToPlayer < detectionRange)
         {
-            // OYUNCUYU TAKİP ET (Sadece X ekseninde)
-            float direction = (player.position.x > transform.position.x) ? 1 : -1;
-            rb.linearVelocity = new Vector2(direction * speed, rb.linearVelocity.y);
+            // OYUNCUYU TAKİP ET
+            direction = (player.position.x > transform.position.x) ? 1 : -1;
         }
         else
         {
-            // DEVRIYE GEZ (Sadece X ekseninde)
-            float direction = (targetPoint.position.x > transform.position.x) ? 1 : -1;
-            rb.linearVelocity = new Vector2(direction * speed, rb.linearVelocity.y);
+            // DEVRIYE GEZ
+            direction = (targetPoint.position.x > transform.position.x) ? 1 : -1;
 
             if (Mathf.Abs(transform.position.x - targetPoint.position.x) < 0.2f)
                 targetPoint = targetPoint == pointA ? pointB : pointA;
         }
+
+        // Hareketi uygula
+        rb.linearVelocity = new Vector2(direction * speed, rb.linearVelocity.y);
+
+        // YÖNÜ ÇEVİR (Sprite Flip)
+        if (direction > 0) transform.localScale = new Vector3(1, 1, 1);
+        else if (direction < 0) transform.localScale = new Vector3(-1, 1, 1);
+    }
+
+    // Görüş alanını sahnede görmek için
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, detectionRange);
     }
 
     private void OnCollisionStay2D(Collision2D collision)
