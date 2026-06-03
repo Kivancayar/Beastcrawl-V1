@@ -19,10 +19,10 @@ public class CameraFollow : MonoBehaviour
 
         // Hedef pozisyonu hesapla
         Vector3 desiredPosition = player.position + offset;
-        // Yumuşak geçiş
+        // Yumuşak geçiş (Smooth Speed)
         Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
 
-        // Pozisyonu uygula
+        // Hedef pozisyonu uygula
         transform.position = smoothedPosition + sarsintiOfseti;
     }
 
