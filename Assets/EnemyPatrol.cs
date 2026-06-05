@@ -23,7 +23,7 @@ public class EnemyPatrol : MonoBehaviour
 
     void Update()
     {
-        // Zeminde mi?
+        // TODO: Yarın burada Raycast ile daha hassas boşluk kontrolü yapılacak.
         bool isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.5f, groundLayer);
 
         // Yön hesapla
@@ -32,6 +32,7 @@ public class EnemyPatrol : MonoBehaviour
 
         if (distanceToPlayer < detectionRange)
         {
+            // TODO: Düşmanın saldırı animasyonları ve saldırı bekleme (cooldown) mantığı buraya eklenecek.
             direction = (player.position.x > transform.position.x) ? 1 : -1;
         }
         else
@@ -48,7 +49,7 @@ public class EnemyPatrol : MonoBehaviour
         }
         else
         {
-            // Havada ise sadece yatay hızı kes, yerçekimi düşmanı aşağı çeksin
+            // TODO: Havada zıplama mekaniği veya boşluk algılama mantığı buraya entegre edilecek.
             rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
         }
     }

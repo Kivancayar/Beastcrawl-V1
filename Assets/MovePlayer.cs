@@ -125,7 +125,7 @@ public class MovePlayer : MonoBehaviour
             if (!isLaserFiring)
             {
                 currentChargeTimer += Time.deltaTime;
-                if (currentChargeTimer >= 2f) isLaserFiring = true;
+                if (currentChargeTimer >= 1f) isLaserFiring = true;
             }
             else if (playerMana > 0)
             {
