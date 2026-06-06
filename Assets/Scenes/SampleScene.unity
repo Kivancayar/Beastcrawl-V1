@@ -333,7 +333,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 3
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -342,8 +342,8 @@ Rigidbody2D:
     serializedVersion: 2
     m_Bits: 0
   m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_SleepingMode: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!61 &163734313
 BoxCollider2D:
@@ -478,15 +478,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a35a8d14d358b90428a9ddf2c4fa8416, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  speed: 2
+  speed: 2.5
+  jumpForce: 10
   detectionRange: 5
+  attackRange: 0.6
   player: {fileID: 621929721}
-  pointA: {fileID: 1327737600}
-  pointB: {fileID: 1437210030}
   groundCheck: {fileID: 503736415}
   groundLayer:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 64
+  damage: 10
+  knockbackForce: 10
 --- !u!114 &163734317
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -513,7 +515,7 @@ GameObject:
   - component: {fileID: 335876973}
   m_Layer: 6
   m_Name: Ground 1
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2739,7 +2741,7 @@ GameObject:
   - component: {fileID: 2132434912}
   - component: {fileID: 2132434911}
   m_Layer: 6
-  m_Name: Square
+  m_Name: Ground 2
   m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
