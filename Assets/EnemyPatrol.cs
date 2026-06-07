@@ -18,7 +18,10 @@ public class EnemyPatrol : MonoBehaviour
     private bool isGrounded;
     private float lastJumpTime;
 
-    void Start() { rb = GetComponent<Rigidbody2D>(); }
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+    }
 
     void FixedUpdate()
     {
@@ -39,14 +42,11 @@ public class EnemyPatrol : MonoBehaviour
             {
                 if (IsLedgeAhead(direction) && Time.time > lastJumpTime + 1f)
                 {
-                    // Zıplarken yatay hızı (direction * speed) koruyarak yukarı ivme ekliyoruz
-                    float jumpBoost = 1.5f;
-                    rb.linearVelocity = new Vector2(direction * speed, 0);
-
-                    rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+                    // Düzeltilmiş Zıplama: Hem yatay hem dikey hızı aynı anda velocity ile veriyoruz
+                    rb.linearVelocity = new Vector2(direction * speed * 1.5f, jumpForce);
                     lastJumpTime = Time.time;
                 }
-                else if (isGrounded) // Yere değiyorsa yürü
+                else
                 {
                     rb.linearVelocity = new Vector2(direction * speed, rb.linearVelocity.y);
                 }

@@ -3,7 +3,7 @@ using System.Collections;
 
 public class EnemyHealth : MonoBehaviour
 {
-    public float maxHealth = 100f;
+    private float maxHealth = 100f;
     private float currentHealth;
 
     private SpriteRenderer sr;
@@ -24,7 +24,7 @@ public class EnemyHealth : MonoBehaviour
         currentHealth -= amount;
         Debug.Log("DÜŞMAN HASAR ALDI! Kalan Can: " + (int)currentHealth);
 
-        // Görsel efekt: Hasar alınca kırmızı yanıp sön
+        
         StartCoroutine(FlashEffect());
 
         if (currentHealth <= 0)
