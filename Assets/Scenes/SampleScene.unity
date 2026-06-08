@@ -487,6 +487,7 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
+  jumpDustPrefab: {fileID: 8605057469248249752, guid: b3dfbc6087a4278498a4e3e8c7901bbd, type: 3}
   damage: 10
   knockbackForce: 10
 --- !u!114 &163734317
@@ -501,7 +502,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81fb351bcef520548bdf09fdf48f2dbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
-  maxHealth: 100
 --- !u!1 &335876972
 GameObject:
   m_ObjectHideFlags: 0

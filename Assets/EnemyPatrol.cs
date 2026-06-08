@@ -10,6 +10,9 @@ public class EnemyPatrol : MonoBehaviour
     public Transform groundCheck;
     public LayerMask groundLayer;
 
+    [Header("Efektler")]
+    public GameObject jumpDustPrefab; // Buraya toz efekti prefabını sürükle
+
     [Header("Hasar Ayarları")]
     public float damage = 10f;
     public float knockbackForce = 10f;
@@ -25,7 +28,6 @@ public class EnemyPatrol : MonoBehaviour
 
     void FixedUpdate()
     {
-        // 1. Zemin Kontrolü
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.1f, groundLayer);
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
@@ -37,12 +39,16 @@ public class EnemyPatrol : MonoBehaviour
         }
         else
         {
-            // 2. Yürüme ve Zıplama (Sadece yerdeyse)
             if (isGrounded)
             {
                 if (IsLedgeAhead(direction) && Time.time > lastJumpTime + 1f)
                 {
-                    // Düzeltilmiş Zıplama: Hem yatay hem dikey hızı aynı anda velocity ile veriyoruz
+                    // TOZ EFEKTİ: Zıplama anında toz bulutunu oluştur
+                    if (jumpDustPrefab != null)
+                    {
+                        Instantiate(jumpDustPrefab, groundCheck.position, Quaternion.identity);
+                    }
+
                     rb.linearVelocity = new Vector2(direction * speed * 1.5f, jumpForce);
                     lastJumpTime = Time.time;
                 }
@@ -57,11 +63,9 @@ public class EnemyPatrol : MonoBehaviour
     bool IsLedgeAhead(float dir)
     {
         if (dir == 0) return false;
-        // İleriye doğru bir ışın atıp zemini kontrol eder
         return !Physics2D.Raycast(transform.position + new Vector3(dir * 0.1f, 0, 0), Vector2.down, 1.5f, groundLayer);
     }
 
-    // 3. Oyuncuya Çarpma ve Hasar Verme
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
@@ -69,11 +73,8 @@ public class EnemyPatrol : MonoBehaviour
             MovePlayer playerScript = collision.gameObject.GetComponent<MovePlayer>();
             if (playerScript != null)
             {
-                // Oyuncuyu itme yönünü hesapla (Düşmanın olduğu yönün tersi)
                 Vector2 knockbackDir = (collision.transform.position - transform.position).normalized;
-                // Yana itmenin yanı sıra biraz yukarı da savurması için y değerini sabitledik
                 knockbackDir.y = 0.5f;
-
                 playerScript.TakeDamage(damage, knockbackDir);
             }
         }
