@@ -51,76 +51,67 @@ public class MovePlayer : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        if (rb != null) originalGravity = rb.gravityScale;
+        rb.interpolation = RigidbodyInterpolation2D.Interpolate; // STABİLİTE: Hareketin akıcı olması için
+        originalGravity = rb.gravityScale;
 
         if (firePoint != null)
         {
             laserLine = firePoint.GetComponent<LineRenderer>();
-            if (laserLine != null)
-            {
-                laserLine.enabled = false;
-                laserLine.SetPosition(0, firePoint.position);
-                laserLine.SetPosition(1, firePoint.position);
-            }
+            if (laserLine != null) laserLine.enabled = false;
         }
     }
 
     void Update()
     {
-        if (isDashing) return;
+        if (isDashing || isKnockback) return; // Knockback anında kontrolü kısıtla
 
+        // UI Güncelleme (Performans için sadece değiştiğinde de yapılabilir)
         if (healthSlider != null) healthSlider.value = playerHealth;
         if (manaSlider != null) manaSlider.value = playerMana;
 
+        HandleMovement();
+        HandleLaser();
+        RegenerateMana();
+    }
+
+    void HandleMovement()
+    {
         if (!isCharging)
         {
-            if (!isKnockback)
-            {
-                float moveInput = Input.GetAxisRaw("Horizontal");
-                if (moveInput != 0)
-                {
-                    lastFacingDirection = moveInput;
-                    rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
-                    transform.localScale = new Vector3(moveInput > 0 ? 1 : -1, 1, 1);
-                }
-                else rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            float moveInput = Input.GetAxisRaw("Horizontal");
+            if (moveInput != 0) lastFacingDirection = moveInput;
 
-                Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                mousePos.z = 0f;
-                if (mousePos.x > transform.position.x) transform.localScale = new Vector3(1, 1, 1);
-                else transform.localScale = new Vector3(-1, 1, 1);
-            }
+            rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+
+            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            transform.localScale = new Vector3(mousePos.x > transform.position.x ? 1 : -1, 1, 1);
 
             isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
-            if (Input.GetButtonDown("Jump") && isGrounded && !isKnockback)
+            if (Input.GetButtonDown("Jump") && isGrounded)
                 rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
 
-            if (Input.GetKeyDown(KeyCode.LeftShift) && canDash && playerMana >= dashManaCost && !isKnockback)
+            if (Input.GetKeyDown(KeyCode.LeftShift) && canDash && playerMana >= dashManaCost)
                 StartCoroutine(DashAction());
-
-            if (playerMana < 100)
-            {
-                playerMana += manaRegenSpeed * Time.deltaTime;
-                if (playerMana > 100) playerMana = 100;
-            }
         }
         else
         {
             rb.linearVelocity = Vector2.zero;
-            rb.gravityScale = 0f;
         }
+    }
 
-        if (Input.GetKeyDown(KeyCode.F) && !isKnockback && !isDashing && playerMana > 5f)
+    void HandleLaser()
+    {
+        if (Input.GetKeyDown(KeyCode.F) && playerMana > 5f)
         {
             isCharging = true;
             isLaserFiring = false;
             currentChargeTimer = 0f;
-            Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            mousePosition.z = 0f;
-            lockedDirection = (mousePosition - firePoint.position).normalized;
+            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            lockedDirection = (mousePos - firePoint.position).normalized;
+            rb.gravityScale = 0f;
         }
 
-        if (Input.GetKey(KeyCode.F) && isCharging)
+        if (isCharging && Input.GetKey(KeyCode.F))
         {
             if (!isLaserFiring)
             {
@@ -130,20 +121,23 @@ public class MovePlayer : MonoBehaviour
             else if (playerMana > 0)
             {
                 playerMana -= laserManaCostPerSecond * Time.deltaTime;
-                Vector2 laserEndPoint = (Vector2)firePoint.position + ((Vector2)lockedDirection * laserRange);
                 RaycastHit2D hit = Physics2D.CircleCast(firePoint.position, 1f, lockedDirection, laserRange, canavarLayerMask);
+                Vector2 endPoint = (Vector2)firePoint.position + ((Vector2)lockedDirection * laserRange);
+
                 if (hit.collider != null)
                 {
-                    laserEndPoint = hit.point;
-                    EnemyHealth enemyHealth = hit.collider.GetComponent<EnemyHealth>();
-                    if (enemyHealth != null) enemyHealth.TakeDamage(laserDamage * Time.deltaTime);
+                    endPoint = hit.point;
+                    hit.collider.GetComponent<EnemyHealth>()?.TakeDamage(laserDamage * Time.deltaTime);
                 }
-                if (laserLine != null) { laserLine.enabled = true; laserLine.SetPosition(0, firePoint.position); laserLine.SetPosition(1, laserEndPoint); }
+                if (laserLine) { laserLine.enabled = true; laserLine.SetPosition(0, firePoint.position); laserLine.SetPosition(1, endPoint); }
             }
-            else StopLaserAndRelease();
         }
+        else if (Input.GetKeyUp(KeyCode.F) && isCharging) StopLaserAndRelease();
+    }
 
-        if (Input.GetKeyUp(KeyCode.F) && isCharging) StopLaserAndRelease();
+    private void RegenerateMana()
+    {
+        if (playerMana < 100) playerMana = Mathf.Min(100, playerMana + manaRegenSpeed * Time.deltaTime);
     }
 
     private void StopLaserAndRelease()
@@ -151,16 +145,16 @@ public class MovePlayer : MonoBehaviour
         isCharging = false;
         isLaserFiring = false;
         rb.gravityScale = originalGravity;
-        if (laserLine != null) laserLine.enabled = false;
+        if (laserLine) laserLine.enabled = false;
     }
 
     private IEnumerator DashAction()
     {
         canDash = false; isDashing = true; playerMana -= dashManaCost;
-        float originalGrav = rb.gravityScale; rb.gravityScale = 0f;
+        float oldGrav = rb.gravityScale; rb.gravityScale = 0f;
         rb.linearVelocity = new Vector2(lastFacingDirection * dashForce, 0f);
         yield return new WaitForSeconds(dashTime);
-        rb.gravityScale = originalGrav; isDashing = false;
+        rb.gravityScale = oldGrav; isDashing = false;
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
     }
@@ -170,14 +164,12 @@ public class MovePlayer : MonoBehaviour
         if (isKnockback) return;
         playerHealth -= amount;
 
-        rb.isKinematic = true; // KİLİT: Stabilite için
-        StartCoroutine(KnockbackRoutine());
-        rb.isKinematic = false;
-
+        // KİLİT: Kinematic kullanmak yerine Velocity'yi sıfırlayıp kuvvet uyguluyoruz.
         rb.linearVelocity = Vector2.zero;
         rb.AddForce(new Vector2(knockbackDirection.x * yanaItmeGucu, knockbackDirection.y * yukariItmeGucu), ForceMode2D.Impulse);
 
-        if (playerHealth <= 0) { playerHealth = 0; gameObject.SetActive(false); }
+        StartCoroutine(KnockbackRoutine());
+        if (playerHealth <= 0) gameObject.SetActive(false);
     }
 
     private IEnumerator KnockbackRoutine()

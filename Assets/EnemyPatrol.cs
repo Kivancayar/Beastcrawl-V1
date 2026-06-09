@@ -11,15 +11,12 @@ public class EnemyPatrol : MonoBehaviour
     public LayerMask groundLayer;
 
     [Header("Efektler")]
-    public GameObject jumpDustPrefab; // Buraya toz efekti prefabını sürükle
-
-    [Header("Hasar Ayarları")]
-    public float damage = 10f;
-    public float knockbackForce = 10f;
+    public GameObject jumpDustPrefab;
 
     private Rigidbody2D rb;
     private bool isGrounded;
     private float lastJumpTime;
+    private float checkTimer; // Performans için zamanlayıcı
 
     void Start()
     {
@@ -28,7 +25,13 @@ public class EnemyPatrol : MonoBehaviour
 
     void FixedUpdate()
     {
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.1f, groundLayer);
+        // 1. Performans Optimizasyonu: Kontrolleri her karede değil, 0.1 saniyede bir yap
+        checkTimer += Time.fixedDeltaTime;
+        if (checkTimer >= 0.1f)
+        {
+            isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.1f, groundLayer);
+            checkTimer = 0;
+        }
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
         float direction = (distanceToPlayer < detectionRange) ? (player.position.x > transform.position.x ? 1 : -1) : 0;
@@ -37,25 +40,18 @@ public class EnemyPatrol : MonoBehaviour
         {
             rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
         }
-        else
+        else if (isGrounded)
         {
-            if (isGrounded)
+            // Zıplama mantığı
+            if (IsLedgeAhead(direction) && Time.time > lastJumpTime + 1f)
             {
-                if (IsLedgeAhead(direction) && Time.time > lastJumpTime + 1f)
-                {
-                    // TOZ EFEKTİ: Zıplama anında toz bulutunu oluştur
-                    if (jumpDustPrefab != null)
-                    {
-                        Instantiate(jumpDustPrefab, groundCheck.position, Quaternion.identity);
-                    }
-
-                    rb.linearVelocity = new Vector2(direction * speed * 1.5f, jumpForce);
-                    lastJumpTime = Time.time;
-                }
-                else
-                {
-                    rb.linearVelocity = new Vector2(direction * speed, rb.linearVelocity.y);
-                }
+                if (jumpDustPrefab != null) Instantiate(jumpDustPrefab, groundCheck.position, Quaternion.identity);
+                rb.linearVelocity = new Vector2(direction * speed * 1.5f, jumpForce);
+                lastJumpTime = Time.time;
+            }
+            else
+            {
+                rb.linearVelocity = new Vector2(direction * speed, rb.linearVelocity.y);
             }
         }
     }
@@ -63,6 +59,7 @@ public class EnemyPatrol : MonoBehaviour
     bool IsLedgeAhead(float dir)
     {
         if (dir == 0) return false;
+        // Raycast biraz ağır bir işlemdir, gerekirse mesafe veya maskeyi optimize edebilirsin
         return !Physics2D.Raycast(transform.position + new Vector3(dir * 0.1f, 0, 0), Vector2.down, 1.5f, groundLayer);
     }
 
@@ -70,12 +67,13 @@ public class EnemyPatrol : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            MovePlayer playerScript = collision.gameObject.GetComponent<MovePlayer>();
+            // GetComponent yerine direkt referans kullanmak daha hızlıdır ama şimdilik bu kalsın
+            var playerScript = collision.gameObject.GetComponent<MovePlayer>();
             if (playerScript != null)
             {
                 Vector2 knockbackDir = (collision.transform.position - transform.position).normalized;
                 knockbackDir.y = 0.5f;
-                playerScript.TakeDamage(damage, knockbackDir);
+                playerScript.TakeDamage(10f, knockbackDir);
             }
         }
     }
