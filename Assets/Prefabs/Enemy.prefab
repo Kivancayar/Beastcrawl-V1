@@ -185,15 +185,11 @@ MonoBehaviour:
   jumpForce: 10
   detectionRange: 5
   attackRange: 0.6
-  attackCooldown: 1.5
   player: {fileID: 0}
   groundCheck: {fileID: 9002137166125278381}
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
-  jumpDustPrefab: {fileID: 8605057469248249752, guid: b3dfbc6087a4278498a4e3e8c7901bbd, type: 3}
-  damage: 10
-  knockbackForce: 10
 --- !u!114 &5831933906009056792
 MonoBehaviour:
   m_ObjectHideFlags: 0

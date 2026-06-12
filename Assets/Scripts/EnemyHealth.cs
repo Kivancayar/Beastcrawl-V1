@@ -10,11 +10,25 @@ public class EnemyHealth : MonoBehaviour
     private Color originalColor;
     private bool isDead = false;
 
+    // Artık Inspector'dan sürüklemene gerek yok, kod kendisi bulacak.
+    public EnemySpawner spawner;
+
     void Start()
     {
         currentHealth = maxHealth;
         sr = GetComponent<SpriteRenderer>();
         originalColor = sr.color;
+
+        // OTOMATİK BULMA: Spawner objesini 'Spawner' tag'inden bul
+        GameObject spawnerObj = GameObject.FindGameObjectWithTag("Spawner");
+        if (spawnerObj != null)
+        {
+            spawner = spawnerObj.GetComponent<EnemySpawner>();
+        }
+        else
+        {
+            Debug.LogError("HATA: 'Spawner' tag'ine sahip bir obje bulunamadı! Lütfen EnemySpawner objesinin Tag'ini 'Spawner' olarak ayarla.");
+        }
     }
 
     public void TakeDamage(float amount)
@@ -22,9 +36,6 @@ public class EnemyHealth : MonoBehaviour
         if (isDead) return;
 
         currentHealth -= amount;
-        Debug.Log("DÜŞMAN HASAR ALDI! Kalan Can: " + (int)currentHealth);
-
-        
         StartCoroutine(FlashEffect());
 
         if (currentHealth <= 0)
@@ -35,10 +46,15 @@ public class EnemyHealth : MonoBehaviour
 
     private void Die()
     {
+        if (isDead) return;
         isDead = true;
-        Debug.Log("DÜŞMAN ÖLDÜ!");
 
-        // Görsel efekt: Yavaşça şeffaflaş ve yok ol
+        // Düşman ölürken Spawner'a haber ver (2 saniye sonra yeni doğur)
+        if (spawner != null)
+        {
+            spawner.StartSpawnRoutine();
+        }
+
         StartCoroutine(FadeAndDestroy());
     }
 
@@ -51,14 +67,13 @@ public class EnemyHealth : MonoBehaviour
 
     IEnumerator FadeAndDestroy()
     {
-        // Düşmanı hareketten kes
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
         if (rb != null) rb.linearVelocity = Vector2.zero;
 
-        // Yavaşça şeffaflaştır
+        // Şeffaflaştır ve yok et
         for (float i = 1f; i >= 0; i -= 0.1f)
         {
-            sr.color = new Color(1, 1, 1, i);
+            sr.color = new Color(originalColor.r, originalColor.g, originalColor.b, i);
             yield return new WaitForSeconds(0.05f);
         }
 
