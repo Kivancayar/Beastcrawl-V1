@@ -7,6 +7,7 @@ TagManager:
   - Enemy
   - Amplifier
   - Ground
+  - Spawner
   layers:
   - Default
   - TransparentFX

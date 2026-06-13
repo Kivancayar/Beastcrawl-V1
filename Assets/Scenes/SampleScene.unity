@@ -1021,7 +1021,7 @@ GameObject:
   - component: {fileID: 1012834315}
   m_Layer: 0
   m_Name: EnemySpawner
-  m_TagString: Untagged
+  m_TagString: Spawner
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1038,8 +1038,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05664f1c4917c4149b7fc3529a2d90c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
-  enemyPrefab: {fileID: 7676335936339274552}
-  spawnRate: 5
+  enemyPrefab: {fileID: 3551365655739309586, guid: 11410bb26d8f77e49a0e4b669a8abf89, type: 3}
+  spawnDelay: 2
 --- !u!4 &1012834316
 Transform:
   m_ObjectHideFlags: 0
@@ -1550,6 +1550,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &1674620709 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 9002137166125278381, guid: 11410bb26d8f77e49a0e4b669a8abf89, type: 3}
+  m_PrefabInstance: {fileID: 7676335936339274551}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2132434910
 GameObject:
   m_ObjectHideFlags: 0
@@ -1697,8 +1702,28 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 3228748622760920196, guid: 11410bb26d8f77e49a0e4b669a8abf89, type: 3}
-      propertyPath: player
+      propertyPath: speed
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3228748622760920196, guid: 11410bb26d8f77e49a0e4b669a8abf89, type: 3}
+      propertyPath: jumpForce
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3228748622760920196, guid: 11410bb26d8f77e49a0e4b669a8abf89, type: 3}
+      propertyPath: jumpEffect
       value: 
+      objectReference: {fileID: 6704939474657988363, guid: b3dfbc6087a4278498a4e3e8c7901bbd, type: 3}
+    - target: {fileID: 3228748622760920196, guid: 11410bb26d8f77e49a0e4b669a8abf89, type: 3}
+      propertyPath: groundCheck
+      value: 
+      objectReference: {fileID: 1674620709}
+    - target: {fileID: 3228748622760920196, guid: 11410bb26d8f77e49a0e4b669a8abf89, type: 3}
+      propertyPath: groundLayer.m_Bits
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3228748622760920196, guid: 11410bb26d8f77e49a0e4b669a8abf89, type: 3}
+      propertyPath: m_EditorClassIdentifier
+      value: Assembly-CSharp::EnemyPatrol
       objectReference: {fileID: 0}
     - target: {fileID: 3285431759800216720, guid: 11410bb26d8f77e49a0e4b669a8abf89, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1744,16 +1769,15 @@ PrefabInstance:
       propertyPath: m_Name
       value: Enemy
       objectReference: {fileID: 0}
+    - target: {fileID: 5818941674984498983, guid: 11410bb26d8f77e49a0e4b669a8abf89, type: 3}
+      propertyPath: m_GravityScale
+      value: 2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 11410bb26d8f77e49a0e4b669a8abf89, type: 3}
---- !u!1 &7676335936339274552 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3551365655739309586, guid: 11410bb26d8f77e49a0e4b669a8abf89, type: 3}
-  m_PrefabInstance: {fileID: 7676335936339274551}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8235478206345069864
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1899,6 +1923,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81fb351bcef520548bdf09fdf48f2dbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
+  spawner: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
