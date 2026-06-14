@@ -31,6 +31,15 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
+    void Update()
+    {
+        // EKLEDİĞİMİZ KISIM: Ekran sınırları dışına çıkarsa yok et
+        if (transform.position.x < -15 || transform.position.x > 15)
+        {
+            Destroy(gameObject);
+        }
+    }
+
     public void TakeDamage(float amount)
     {
         if (isDead) return;
