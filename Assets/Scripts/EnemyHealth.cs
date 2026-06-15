@@ -36,7 +36,7 @@ public class EnemyHealth : MonoBehaviour
         // EKLEDİĞİMİZ KISIM: Ekran sınırları dışına çıkarsa yok et
         if (transform.position.x < -15 || transform.position.x > 15)
         {
-            Destroy(gameObject);
+            if (!isDead) Die(); // Direkt silmek yerine ölme mantığını çalıştır
         }
     }
 
