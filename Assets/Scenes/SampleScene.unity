@@ -1706,6 +1706,10 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3228748622760920196, guid: 11410bb26d8f77e49a0e4b669a8abf89, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3228748622760920196, guid: 11410bb26d8f77e49a0e4b669a8abf89, type: 3}
       propertyPath: jumpForce
       value: 8
       objectReference: {fileID: 0}
@@ -1718,8 +1722,12 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1674620709}
     - target: {fileID: 3228748622760920196, guid: 11410bb26d8f77e49a0e4b669a8abf89, type: 3}
+      propertyPath: attackCooldown
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3228748622760920196, guid: 11410bb26d8f77e49a0e4b669a8abf89, type: 3}
       propertyPath: groundLayer.m_Bits
-      value: 0
+      value: 64
       objectReference: {fileID: 0}
     - target: {fileID: 3228748622760920196, guid: 11410bb26d8f77e49a0e4b669a8abf89, type: 3}
       propertyPath: m_EditorClassIdentifier

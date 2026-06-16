@@ -19,24 +19,19 @@ public class EnemyHealth : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
         originalColor = sr.color;
 
-        // OTOMATİK BULMA: Spawner objesini 'Spawner' tag'inden bul
-        GameObject spawnerObj = GameObject.FindGameObjectWithTag("Spawner");
-        if (spawnerObj != null)
-        {
-            spawner = spawnerObj.GetComponent<EnemySpawner>();
-        }
-        else
-        {
-            Debug.LogError("HATA: 'Spawner' tag'ine sahip bir obje bulunamadı! Lütfen EnemySpawner objesinin Tag'ini 'Spawner' olarak ayarla.");
-        }
+        
     }
 
     void Update()
     {
-        // EKLEDİĞİMİZ KISIM: Ekran sınırları dışına çıkarsa yok et
-        if (transform.position.x < -15 || transform.position.x > 15)
+        // Sadece Düşmanlar için sınır kontrolü:
+        // Eğer bu objenin Tag'i 'Player' değilse, sınır dışı olunca sil.
+        if (!gameObject.CompareTag("Player"))
         {
-            if (!isDead) Die(); // Direkt silmek yerine ölme mantığını çalıştır
+            if (transform.position.x < -15 || transform.position.x > 15)
+            {
+                if (!isDead) Die();
+            }
         }
     }
 
@@ -76,10 +71,14 @@ public class EnemyHealth : MonoBehaviour
 
     IEnumerator FadeAndDestroy()
     {
+        // 1. Çarpışmayı Kapat (Ölürken oyuncuya takılmasın)
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null) col.enabled = false;
+
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
         if (rb != null) rb.linearVelocity = Vector2.zero;
 
-        // Şeffaflaştır ve yok et
+        // 2. Şeffaflaştır ve yok et
         for (float i = 1f; i >= 0; i -= 0.1f)
         {
             sr.color = new Color(originalColor.r, originalColor.g, originalColor.b, i);
