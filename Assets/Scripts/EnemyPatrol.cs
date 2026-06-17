@@ -46,13 +46,18 @@ public class EnemyPatrol : MonoBehaviour
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
         float direction = (distanceToPlayer < detectionRange) ? (player.position.x > transform.position.x ? 1 : -1) : 0;
 
-        // 2. TEMEL ZIPLAMA MANTIĞI
+        // 2. GÜNCELLENMİŞ ZIPLAMA MANTIĞI
         if (isGrounded && direction != 0)
         {
-            // Önünde bir engel varsa zıpla
+            // Öndeki duvara bak
             RaycastHit2D wallAhead = Physics2D.Raycast((Vector2)transform.position + new Vector2(0, 0.2f), new Vector2(direction, 0), 0.7f, groundLayer);
 
-            if (wallAhead.collider != null)
+            // İlerideki boşluğa (platform ucuna) bak
+            Vector2 checkPos = (Vector2)transform.position + new Vector2(direction * 0.5f, -0.5f);
+            RaycastHit2D groundAhead = Physics2D.Raycast(checkPos, Vector2.down, 1f, groundLayer);
+
+            // Eğer önünde duvar varsa VEYA bastığı zemin bitiyorsa zıpla
+            if (wallAhead.collider != null || groundAhead.collider == null)
             {
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
                 if (jumpEffect != null) jumpEffect.Play();
