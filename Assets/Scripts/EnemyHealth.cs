@@ -10,7 +10,6 @@ public class EnemyHealth : MonoBehaviour
     private Color originalColor;
     private bool isDead = false;
 
-    // Artık Inspector'dan sürüklemene gerek yok, kod kendisi bulacak.
     public EnemySpawner spawner;
 
     void Start()
@@ -19,13 +18,19 @@ public class EnemyHealth : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
         originalColor = sr.color;
 
-        
+        // Eğer spawner elle atanmadıysa sahneden etiket ile bul
+        if (spawner == null)
+        {
+            GameObject spawnerObj = GameObject.FindGameObjectWithTag("Spawner");
+            if (spawnerObj != null)
+            {
+                spawner = spawnerObj.GetComponent<EnemySpawner>();
+            }
+        }
     }
 
     void Update()
     {
-        // Sadece Düşmanlar için sınır kontrolü:
-        // Eğer bu objenin Tag'i 'Player' değilse, sınır dışı olunca sil.
         if (!gameObject.CompareTag("Player"))
         {
             if (transform.position.x < -15 || transform.position.x > 15)
@@ -53,7 +58,7 @@ public class EnemyHealth : MonoBehaviour
         if (isDead) return;
         isDead = true;
 
-        // Düşman ölürken Spawner'a haber ver (2 saniye sonra yeni doğur)
+        // Spawner'a haber ver
         if (spawner != null)
         {
             spawner.StartSpawnRoutine();
@@ -71,14 +76,12 @@ public class EnemyHealth : MonoBehaviour
 
     IEnumerator FadeAndDestroy()
     {
-        // 1. Çarpışmayı Kapat (Ölürken oyuncuya takılmasın)
         Collider2D col = GetComponent<Collider2D>();
         if (col != null) col.enabled = false;
 
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
         if (rb != null) rb.linearVelocity = Vector2.zero;
 
-        // 2. Şeffaflaştır ve yok et
         for (float i = 1f; i >= 0; i -= 0.1f)
         {
             sr.color = new Color(originalColor.r, originalColor.g, originalColor.b, i);

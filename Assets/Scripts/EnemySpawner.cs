@@ -1,5 +1,5 @@
 using UnityEngine;
-using System.Collections; // Bunu eklemeyi unutma!
+using System.Collections;
 
 public class EnemySpawner : MonoBehaviour
 {
@@ -8,8 +8,8 @@ public class EnemySpawner : MonoBehaviour
 
     void Start()
     {
-        // Start() içinden SpawnEnemy() komutunu SİL. 
-        // Böylece oyun başlayınca otomatik doğurmaz.
+        // Başlangıçta düşman doğurmasını istemiyorsan burayı boş bırak.
+        // Eğer ilk girişte düşman olsun istiyorsan buraya StartSpawnRoutine(); yazabilirsin.
     }
 
     public void StartSpawnRoutine()
@@ -20,6 +20,15 @@ public class EnemySpawner : MonoBehaviour
     IEnumerator SpawnRoutine()
     {
         yield return new WaitForSeconds(spawnDelay);
-        Instantiate(enemyPrefab, transform.position, Quaternion.identity);
+
+        // Yeni düşmanı yarat
+        GameObject newEnemy = Instantiate(enemyPrefab, transform.position, Quaternion.identity);
+
+        // Yeni düşmanın içindeki Spawner referansını, bu spawner olarak ata
+        EnemyHealth enemyHealth = newEnemy.GetComponent<EnemyHealth>();
+        if (enemyHealth != null)
+        {
+            enemyHealth.spawner = this;
+        }
     }
 }

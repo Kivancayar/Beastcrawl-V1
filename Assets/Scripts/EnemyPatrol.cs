@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class EnemyPatrol : MonoBehaviour
 {
+    // Değişkenler...
     public float speed = 2f;
     public float jumpForce = 8f;
     public float detectionRange = 5f;
@@ -27,36 +28,27 @@ public class EnemyPatrol : MonoBehaviour
 
     void FixedUpdate()
     {
+        // ... (Zıplama ve hareket mantığı)
         if (this == null || rb == null) return;
 
         if (player == null)
         {
             FindPlayer();
-            if (player == null)
-            {
-                rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
-                return;
-            }
+            if (player == null) return;
         }
 
-        // 1. Zemin Kontrolü
         if (groundCheck != null)
             isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
         float direction = (distanceToPlayer < detectionRange) ? (player.position.x > transform.position.x ? 1 : -1) : 0;
 
-        // 2. GÜNCELLENMİŞ ZIPLAMA MANTIĞI
         if (isGrounded && direction != 0)
         {
-            // Öndeki duvara bak
             RaycastHit2D wallAhead = Physics2D.Raycast((Vector2)transform.position + new Vector2(0, 0.2f), new Vector2(direction, 0), 0.7f, groundLayer);
-
-            // İlerideki boşluğa (platform ucuna) bak
             Vector2 checkPos = (Vector2)transform.position + new Vector2(direction * 0.5f, -0.5f);
             RaycastHit2D groundAhead = Physics2D.Raycast(checkPos, Vector2.down, 1f, groundLayer);
 
-            // Eğer önünde duvar varsa VEYA bastığı zemin bitiyorsa zıpla
             if (wallAhead.collider != null || groundAhead.collider == null)
             {
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
@@ -64,7 +56,6 @@ public class EnemyPatrol : MonoBehaviour
             }
         }
 
-        // 3. Hareket
         if (distanceToPlayer < attackRange)
         {
             rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
@@ -74,6 +65,8 @@ public class EnemyPatrol : MonoBehaviour
             rb.linearVelocity = new Vector2(direction * speed, rb.linearVelocity.y);
         }
     }
+
+    // FONKSİYONLAR BURADA (FixedUpdate'in dışında)
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -90,7 +83,7 @@ public class EnemyPatrol : MonoBehaviour
         }
     }
 
-    void FindPlayer()
+    private void FindPlayer() // Burası private olabilir
     {
         GameObject p = GameObject.FindGameObjectWithTag("Player");
         if (p != null) player = p.transform;
