@@ -3,6 +3,10 @@ using System.Collections;
 
 public class EnemyHealth : MonoBehaviour
 {
+    [Header("Sınır Ayarları")]
+    public float leftLimit = -15f;
+    public float rightLimit = 15f;
+
     private float maxHealth = 100f;
     private float currentHealth;
 
@@ -29,16 +33,7 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
-    void Update()
-    {
-        if (!gameObject.CompareTag("Player"))
-        {
-            if (transform.position.x < -15 || transform.position.x > 15)
-            {
-                if (!isDead) Die();
-            }
-        }
-    }
+    
 
     public void TakeDamage(float amount)
     {
@@ -50,6 +45,20 @@ public class EnemyHealth : MonoBehaviour
         if (currentHealth <= 0)
         {
             Die();
+        }
+    }
+
+    void Update()
+    {
+        // Sadece Düşmanlar için sınır kontrolü:
+        if (!gameObject.CompareTag("Player"))
+        {
+           
+
+            if (transform.position.x < leftLimit || transform.position.x > rightLimit)
+            {
+                if (!isDead) Die();
+            }
         }
     }
 

@@ -1785,6 +1785,14 @@ PrefabInstance:
       propertyPath: spawner
       value: 
       objectReference: {fileID: 1012834315}
+    - target: {fileID: 5831933906009056792, guid: 11410bb26d8f77e49a0e4b669a8abf89, type: 3}
+      propertyPath: leftLimit
+      value: -100
+      objectReference: {fileID: 0}
+    - target: {fileID: 5831933906009056792, guid: 11410bb26d8f77e49a0e4b669a8abf89, type: 3}
+      propertyPath: rightLimit
+      value: 100
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1935,6 +1943,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81fb351bcef520548bdf09fdf48f2dbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
+  leftLimit: -15
+  rightLimit: 15
   spawner: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

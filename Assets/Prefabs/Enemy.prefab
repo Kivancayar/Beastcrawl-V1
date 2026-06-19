@@ -185,11 +185,14 @@ MonoBehaviour:
   jumpForce: 10
   detectionRange: 5
   attackRange: 0.6
+  attackCooldown: 1.5
+  damage: 10
   player: {fileID: 0}
   groundCheck: {fileID: 9002137166125278381}
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
+  jumpEffect: {fileID: 6704939474657988363, guid: b3dfbc6087a4278498a4e3e8c7901bbd, type: 3}
 --- !u!114 &5831933906009056792
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -202,6 +205,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81fb351bcef520548bdf09fdf48f2dbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
+  leftLimit: -15
+  rightLimit: 15
+  spawner: {fileID: 0}
 --- !u!1 &5702495607951699598
 GameObject:
   m_ObjectHideFlags: 0
