@@ -24,6 +24,13 @@ public class EnemyPatrol : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         FindPlayer();
+
+        //Oyun başlar başlamaz efekti durdur ve temizle
+        if (jumpEffect != null)
+        {
+            jumpEffect.Stop();
+            jumpEffect.Clear();
+        }
     }
 
     void FixedUpdate()
@@ -51,8 +58,19 @@ public class EnemyPatrol : MonoBehaviour
 
             if (wallAhead.collider != null || groundAhead.collider == null)
             {
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-                if (jumpEffect != null) jumpEffect.Play();
+                // Sadece zıpladığımız o an tetiklenmesi için:
+                // Zaten havadaysak tekrar zıplamasın diye bir kontrol ekliyoruz
+                if (isGrounded)
+                {
+                    rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+
+                    if (jumpEffect != null)
+                    {
+                        jumpEffect.Stop(); // Önceki olası takılmaları temizle
+                        jumpEffect.Clear(); // Efekti sıfırla
+                        jumpEffect.Play(); // Tek bir patlama başlat
+                    }
+                }
             }
         }
 
