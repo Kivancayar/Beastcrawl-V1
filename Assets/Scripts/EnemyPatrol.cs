@@ -2,13 +2,13 @@ using UnityEngine;
 
 public class EnemyPatrol : MonoBehaviour
 {
-    // Değişkenler...
     public float speed = 2f;
     public float jumpForce = 8f;
     public float detectionRange = 5f;
     public float attackRange = 0.6f;
     public float attackCooldown = 1.5f;
     public float damage = 10f;
+    public AudioSource jumpSound;
 
     [Header("Referanslar")]
     public Transform player;
@@ -25,7 +25,6 @@ public class EnemyPatrol : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         FindPlayer();
 
-        //Oyun başlar başlamaz efekti durdur ve temizle
         if (jumpEffect != null)
         {
             jumpEffect.Stop();
@@ -35,7 +34,6 @@ public class EnemyPatrol : MonoBehaviour
 
     void FixedUpdate()
     {
-        // ... (Zıplama ve hareket mantığı)
         if (this == null || rb == null) return;
 
         if (player == null)
@@ -50,6 +48,7 @@ public class EnemyPatrol : MonoBehaviour
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
         float direction = (distanceToPlayer < detectionRange) ? (player.position.x > transform.position.x ? 1 : -1) : 0;
 
+        // Zıplama Mantığı
         if (isGrounded && direction != 0)
         {
             RaycastHit2D wallAhead = Physics2D.Raycast((Vector2)transform.position + new Vector2(0, 0.2f), new Vector2(direction, 0), 0.7f, groundLayer);
@@ -58,22 +57,23 @@ public class EnemyPatrol : MonoBehaviour
 
             if (wallAhead.collider != null || groundAhead.collider == null)
             {
-                // Sadece zıpladığımız o an tetiklenmesi için:
-                // Zaten havadaysak tekrar zıplamasın diye bir kontrol ekliyoruz
-                if (isGrounded)
-                {
-                    rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
 
-                    if (jumpEffect != null)
-                    {
-                        jumpEffect.Stop(); // Önceki olası takılmaları temizle
-                        jumpEffect.Clear(); // Efekti sıfırla
-                        jumpEffect.Play(); // Tek bir patlama başlat
-                    }
+                if (jumpEffect != null)
+                {
+                    jumpEffect.Stop();
+                    jumpEffect.Clear();
+                    jumpEffect.Play();
+                }
+
+                if (jumpSound != null)
+                {
+                    jumpSound.Play();
                 }
             }
-        }
+        } // Zıplama bloğu sonu
 
+        // Hareket ve Saldırı Mantığı
         if (distanceToPlayer < attackRange)
         {
             rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
@@ -82,9 +82,7 @@ public class EnemyPatrol : MonoBehaviour
         {
             rb.linearVelocity = new Vector2(direction * speed, rb.linearVelocity.y);
         }
-    }
-
-    // FONKSİYONLAR BURADA (FixedUpdate'in dışında)
+    } // FixedUpdate sonu
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -101,7 +99,7 @@ public class EnemyPatrol : MonoBehaviour
         }
     }
 
-    private void FindPlayer() // Burası private olabilir
+    private void FindPlayer()
     {
         GameObject p = GameObject.FindGameObjectWithTag("Player");
         if (p != null) player = p.transform;
