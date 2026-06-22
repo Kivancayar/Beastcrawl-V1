@@ -187,6 +187,7 @@ MonoBehaviour:
   attackRange: 0.6
   attackCooldown: 1.5
   damage: 10
+  jumpSound: {fileID: 0}
   player: {fileID: 0}
   groundCheck: {fileID: 9002137166125278381}
   groundLayer:
@@ -207,6 +208,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
   leftLimit: -15
   rightLimit: 15
+  coinPrefab: {fileID: 5256554992785776926, guid: f6a0e33e9bd857a42aea1ec1c7e62a47, type: 3}
   spawner: {fileID: 0}
 --- !u!1 &5702495607951699598
 GameObject:

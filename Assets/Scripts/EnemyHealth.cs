@@ -14,6 +14,9 @@ public class EnemyHealth : MonoBehaviour
     private Color originalColor;
     private bool isDead = false;
 
+    [Header("Ödül Ayarları")]
+    public GameObject coinPrefab; // Coin prefabını buraya atacağız
+
     public EnemySpawner spawner;
 
     void Start()
@@ -66,6 +69,18 @@ public class EnemyHealth : MonoBehaviour
     {
         if (isDead) return;
         isDead = true;
+
+        Debug.Log("Die fonksiyonuna girildi!"); // <-- Bunu mutlaka ekle!
+
+        if (coinPrefab != null)
+        {
+            Instantiate(coinPrefab, transform.position, Quaternion.identity);
+            Debug.Log("Instantiate kodu çalıştı, coin oluşturuldu!");
+        }
+        else
+        {
+            Debug.LogError("Coin Prefab atanmamış! Inspector'ı kontrol et.");
+        }
 
         // Spawner'a haber ver
         if (spawner != null)

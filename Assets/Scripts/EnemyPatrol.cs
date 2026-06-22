@@ -16,6 +16,8 @@ public class EnemyPatrol : MonoBehaviour
     public LayerMask groundLayer;
     public ParticleSystem jumpEffect;
 
+    
+
     private Rigidbody2D rb;
     private bool isGrounded;
     private float nextAttackTime = 0f;
@@ -71,9 +73,8 @@ public class EnemyPatrol : MonoBehaviour
                     jumpSound.Play();
                 }
             }
-        } // Zıplama bloğu sonu
+        }
 
-        // Hareket ve Saldırı Mantığı
         if (distanceToPlayer < attackRange)
         {
             rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
@@ -82,7 +83,7 @@ public class EnemyPatrol : MonoBehaviour
         {
             rb.linearVelocity = new Vector2(direction * speed, rb.linearVelocity.y);
         }
-    } // FixedUpdate sonu
+    }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -104,4 +105,7 @@ public class EnemyPatrol : MonoBehaviour
         GameObject p = GameObject.FindGameObjectWithTag("Player");
         if (p != null) player = p.transform;
     }
+
+    // ÖDÜL SİSTEMİ İÇİN EKLEDİĞİMİZ KISIM:
+    
 }
