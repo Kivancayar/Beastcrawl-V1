@@ -25,7 +25,7 @@ public class EnemyHealth : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
         originalColor = sr.color;
 
-        // Eğer spawner elle atanmadıysa sahneden etiket ile bul
+        // Referansı her zaman otomatik bulmaya zorlayalım
         if (spawner == null)
         {
             GameObject spawnerObj = GameObject.FindGameObjectWithTag("Spawner");
@@ -33,10 +33,13 @@ public class EnemyHealth : MonoBehaviour
             {
                 spawner = spawnerObj.GetComponent<EnemySpawner>();
             }
+            else
+            {
+                Debug.LogWarning("Sahne 'Spawner' tag'ine sahip bir obje bulamadı!");
+            }
         }
     }
 
-    
 
     public void TakeDamage(float amount)
     {

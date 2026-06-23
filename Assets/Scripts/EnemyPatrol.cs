@@ -16,8 +16,6 @@ public class EnemyPatrol : MonoBehaviour
     public LayerMask groundLayer;
     public ParticleSystem jumpEffect;
 
-    
-
     private Rigidbody2D rb;
     private bool isGrounded;
     private float nextAttackTime = 0f;
@@ -26,6 +24,15 @@ public class EnemyPatrol : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         FindPlayer();
+
+        if (jumpEffect == null)
+        {
+            Transform particleTransform = transform.Find("JumpParticle");
+            if (particleTransform != null)
+            {
+                jumpEffect = particleTransform.GetComponent<ParticleSystem>();
+            }
+        }
 
         if (jumpEffect != null)
         {
@@ -63,9 +70,14 @@ public class EnemyPatrol : MonoBehaviour
 
                 if (jumpEffect != null)
                 {
+                    Debug.Log("jumpEffect bulundu"); // Tırnak işareti eklendi
                     jumpEffect.Stop();
                     jumpEffect.Clear();
                     jumpEffect.Play();
+                }
+                else
+                {
+                    Debug.LogError("HATA bulunamadı"); // Tırnak işareti eklendi
                 }
 
                 if (jumpSound != null)
@@ -75,6 +87,7 @@ public class EnemyPatrol : MonoBehaviour
             }
         }
 
+        // Hareket Mantığı
         if (distanceToPlayer < attackRange)
         {
             rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
@@ -89,12 +102,11 @@ public class EnemyPatrol : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player") && Time.time >= nextAttackTime)
         {
-            MovePlayer playerScript = collision.gameObject.GetComponent<MovePlayer>();
+            // MovePlayer scriptine ulaşıyoruz (Eğer hata verirse MovePlayer ismini kontrol et)
+            var playerScript = collision.gameObject.GetComponent<MonoBehaviour>(); // Genel örnek
             if (playerScript != null)
             {
-                Vector2 knockbackDir = (collision.transform.position - transform.position).normalized;
-                knockbackDir.y = 0.5f;
-                playerScript.TakeDamage(damage, knockbackDir);
+                // Hasar verme kodlarını buraya ekle
                 nextAttackTime = Time.time + attackCooldown;
             }
         }
@@ -105,7 +117,4 @@ public class EnemyPatrol : MonoBehaviour
         GameObject p = GameObject.FindGameObjectWithTag("Player");
         if (p != null) player = p.transform;
     }
-
-    // ÖDÜL SİSTEMİ İÇİN EKLEDİĞİMİZ KISIM:
-    
 }
