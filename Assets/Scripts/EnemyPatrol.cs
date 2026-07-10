@@ -6,7 +6,7 @@ public class EnemyPatrol : MonoBehaviour
     public float jumpForce = 8f;
     public float detectionRange = 5f;
     public float attackRange = 0.6f;
-    public float attackCooldown = 1.5f;
+    public float attackCooldown = 1f;
     public float damage = 10f;
     public AudioSource jumpSound;
 
@@ -98,16 +98,26 @@ public class EnemyPatrol : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnCollisionStay2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Player") && Time.time >= nextAttackTime)
+        // Tag'in "Player" olduğundan emin ol
+        if (collision.gameObject.CompareTag("Player"))
         {
-            // MovePlayer scriptine ulaşıyoruz (Eğer hata verirse MovePlayer ismini kontrol et)
-            var playerScript = collision.gameObject.GetComponent<MonoBehaviour>(); // Genel örnek
-            if (playerScript != null)
+            // ÖNEMLİ: MovePlayer scriptini doğrudan çağırıyoruz
+            MovePlayer playerScript = collision.gameObject.GetComponent<MovePlayer>();
+
+            if (playerScript != null && Time.time >= nextAttackTime)
             {
-                // Hasar verme kodlarını buraya ekle
+                // Knockback yönünü hesapla (Enemy'den Player'a doğru)
+                Vector2 knockbackDir = (collision.transform.position - transform.position).normalized;
+
+                // Hasar ver ve knockback uygula
+                playerScript.TakeDamage(damage, knockbackDir);
+
+                // Cooldown'ı başlat
                 nextAttackTime = Time.time + attackCooldown;
+
+                Debug.Log("Enemy oyuncuya çarptı ve hasar verdi!");
             }
         }
     }

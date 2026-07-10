@@ -7,8 +7,8 @@ public class EnemyHealth : MonoBehaviour
     public float leftLimit = -15f;
     public float rightLimit = 15f;
 
-    private float maxHealth = 100f;
-    private float currentHealth;
+    public float maxHealth = 100f;
+    public float currentHealth;
 
     private SpriteRenderer sr;
     private Color originalColor;
@@ -85,9 +85,13 @@ public class EnemyHealth : MonoBehaviour
             Debug.LogError("Coin Prefab atanmamış! Inspector'ı kontrol et.");
         }
 
-        // Spawner'a haber ver
+        // Spawner'a haber ver ve düşmanı güçlendir
         if (spawner != null)
         {
+            spawner.enemyHealth += 10f;      // Her öldüğünde +5 HP
+            spawner.enemyDamage += 10f;      // +1 Damage
+            spawner.enemySpeed += 1f;     // Biraz daha hızlı
+
             spawner.StartSpawnRoutine();
         }
 
@@ -116,5 +120,9 @@ public class EnemyHealth : MonoBehaviour
         }
 
         Destroy(gameObject);
+    }
+    public float GetHealthPercent()
+    {
+        return currentHealth / maxHealth;
     }
 }

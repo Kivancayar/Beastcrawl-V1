@@ -6,6 +6,11 @@ public class EnemySpawner : MonoBehaviour
     public GameObject enemyPrefab;
     public float spawnDelay = 2f;
 
+    // Her spawn'da kullanılacak enemy değerleri
+    public float enemyHealth = 20f;
+    public float enemyDamage = 10f;
+    public float enemySpeed = 2f;
+
     void Start()
     {
         // Başlangıçta düşman doğurmasını istemiyorsan burayı boş bırak.
@@ -24,11 +29,21 @@ public class EnemySpawner : MonoBehaviour
         // Yeni düşmanı yarat
         GameObject newEnemy = Instantiate(enemyPrefab, transform.position, Quaternion.identity);
 
-        // Yeni düşmanın içindeki Spawner referansını, bu spawner olarak ata
-        EnemyHealth enemyHealth = newEnemy.GetComponent<EnemyHealth>();
-        if (enemyHealth != null)
+        // EnemyHealth referansını al
+        EnemyHealth healthScript = newEnemy.GetComponent<EnemyHealth>();
+        if (healthScript != null)
         {
-            enemyHealth.spawner = this;
+            healthScript.spawner = this;
+            healthScript.maxHealth = enemyHealth;
+            healthScript.currentHealth = enemyHealth;
+        }
+
+        // EnemyPatrol referansını al
+        EnemyPatrol patrol = newEnemy.GetComponent<EnemyPatrol>();
+        if (patrol != null)
+        {
+            patrol.damage = enemyDamage;
+            patrol.speed = enemySpeed;
         }
     }
 }

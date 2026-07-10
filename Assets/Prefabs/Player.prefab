@@ -97,15 +97,16 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!224 &8555110802698621448
-RectTransform:
+--- !u!4 &8555110802698621448
+Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2410681339139180267}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 10, y: 2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -114,11 +115,6 @@ RectTransform:
   - {fileID: 7270075737205424557}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 10, y: 2}
-  m_SizeDelta: {x: 1, y: 1}
-  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!212 &4227986956785447068
 SpriteRenderer:
   serializedVersion: 2
@@ -269,25 +265,26 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
-  isCharging: 0
-  yanaItmeGucu: 8
-  yukariItmeGucu: 3
   dashForce: 20
   dashTime: 0.2
   dashCooldown: 1
   dashManaCost: 20
   isDashing: 0
+  yanaItmeGucu: 8
+  yukariItmeGucu: 3
+  isCharging: 0
+  laserManaCostPerSecond: 25
+  laserDamage: 25
+  laserRange: 15
+  firePoint: {fileID: 1432631630494138649}
+  canavarLayerMask:
+    serializedVersion: 2
+    m_Bits: 256
   playerHealth: 100
   playerMana: 100
   manaRegenSpeed: 10
   healthSlider: {fileID: 0}
   manaSlider: {fileID: 0}
-  firePoint: {fileID: 1432631630494138649}
-  canavarLayerMask:
-    serializedVersion: 2
-    m_Bits: 256
-  laserRange: 15
-  laserDamage: 25
 --- !u!114 &718153707744328628
 MonoBehaviour:
   m_ObjectHideFlags: 0

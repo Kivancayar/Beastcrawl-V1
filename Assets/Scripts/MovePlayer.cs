@@ -11,6 +11,15 @@ public class MovePlayer : MonoBehaviour
     public LayerMask groundLayer;
     private bool isGrounded;
 
+    [Header("M1 Attack")]
+    public Transform attackPoint;
+    public float attackRange = 1f;
+    public float attackDamage = 20f;
+    public LayerMask enemyLayer;
+
+    public float attackCooldown = 0.4f;
+    private float nextAttackTime = 0f;
+
     [Header("Dash ve Knockback")]
     public float dashForce = 20f;
     public float dashTime = 0.2f;
@@ -59,12 +68,17 @@ public class MovePlayer : MonoBehaviour
     {
         if (isDashing || isKnockback) return;
 
-        if (healthSlider) healthSlider.value = playerHealth;
+        if (healthSlider)
+        {
+            healthSlider.maxValue = playerHealth;
+            healthSlider.value = playerHealth;
+        }
         if (manaSlider) manaSlider.value = playerMana;
 
         HandleMovement();
         HandleLaser();
         RegenerateMana();
+        HandleM1Attack();
     }
 
     void HandleMovement()
@@ -159,5 +173,32 @@ public class MovePlayer : MonoBehaviour
         isKnockback = true;
         yield return new WaitForSeconds(0.2f);
         isKnockback = false;
+    }
+    void HandleM1Attack()
+    {
+        if (Input.GetMouseButtonDown(0) && Time.time >= nextAttackTime)
+        {
+            nextAttackTime = Time.time + attackCooldown;
+
+            Debug.Log("M1 Attack!");
+
+            Collider2D[] enemies = Physics2D.OverlapCircleAll(
+                attackPoint.position,
+                attackRange,
+                enemyLayer
+            );
+
+            foreach (Collider2D enemy in enemies)
+            {
+                enemy.GetComponent<EnemyHealth>()?.TakeDamage(attackDamage);
+            }
+        }
+    }
+    void OnDrawGizmosSelected()
+    {
+        if (attackPoint == null) return;
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
     }
 }
