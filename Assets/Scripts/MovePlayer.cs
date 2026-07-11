@@ -44,7 +44,8 @@ public class MovePlayer : MonoBehaviour
     private LineRenderer laserLine;
 
     [Header("Can ve Mana")]
-    public float playerHealth = 100f;
+    public float maxHealth = 100f; // MAX CAN
+    public float playerHealth = 100f; // ŞU ANKİ CAN
     public float playerMana = 100f;
     public float manaRegenSpeed = 10f;
     public Slider healthSlider;
@@ -52,6 +53,8 @@ public class MovePlayer : MonoBehaviour
 
     private Rigidbody2D rb;
     private float originalGravity;
+    public SpriteRenderer sr;
+    public Color originalColor; // Karakterin normal rengini saklıyacaz
 
     void Start()
     {
@@ -62,6 +65,13 @@ public class MovePlayer : MonoBehaviour
             laserLine = firePoint.GetComponent<LineRenderer>();
             if (laserLine != null) laserLine.enabled = false;
         }
+        sr = GetComponent<SpriteRenderer>();
+        originalColor = sr.color; // Başlangıç rengini kaydet
+        if (healthSlider)
+        {
+            healthSlider.maxValue = maxHealth;
+            healthSlider.value = playerHealth;
+        }
     }
 
     void Update()
@@ -70,8 +80,7 @@ public class MovePlayer : MonoBehaviour
 
         if (healthSlider)
         {
-            healthSlider.maxValue = playerHealth;
-            healthSlider.value = playerHealth;
+            healthSlider.value = playerHealth; // sadece value değişsin
         }
         if (manaSlider) manaSlider.value = playerMana;
 
@@ -161,7 +170,8 @@ public class MovePlayer : MonoBehaviour
     public void TakeDamage(float amount, Vector2 knockbackDirection)
     {
         if (isKnockback) return;
-        playerHealth -= amount;
+        playerHealth -= amount; // Burası böyle kalacak
+
         rb.linearVelocity = Vector2.zero;
         rb.AddForce(new Vector2(knockbackDirection.x * yanaItmeGucu, knockbackDirection.y * yukariItmeGucu), ForceMode2D.Impulse);
         StartCoroutine(KnockbackRoutine());
