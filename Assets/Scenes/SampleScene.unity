@@ -321,7 +321,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -1969,6 +1969,10 @@ PrefabInstance:
       propertyPath: healthSlider
       value: 
       objectReference: {fileID: 728309755}
+    - target: {fileID: 4436829246201904186, guid: 6ebf0ae4767cb744c94d6b340a9d09dd, type: 3}
+      propertyPath: damageTextPrefab
+      value: 
+      objectReference: {fileID: 1536291230891942633, guid: 7eaaadc600d8d524abbab3d6192d4172, type: 3}
     - target: {fileID: 4436829246201904186, guid: 6ebf0ae4767cb744c94d6b340a9d09dd, type: 3}
       propertyPath: enemyLayer.m_Bits
       value: 256

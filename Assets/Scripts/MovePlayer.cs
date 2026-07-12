@@ -11,6 +11,9 @@ public class MovePlayer : MonoBehaviour
     public LayerMask groundLayer;
     private bool isGrounded;
 
+    [Header("Damage Popup")]
+    public GameObject damageTextPrefab;
+
     [Header("M1 Attack")]
     public Transform attackPoint;
     public float attackRange = 1f;
@@ -200,7 +203,19 @@ public class MovePlayer : MonoBehaviour
 
             foreach (Collider2D enemy in enemies)
             {
-                enemy.GetComponent<EnemyHealth>()?.TakeDamage(attackDamage);
+                EnemyHealth enemyHealth = enemy.GetComponent<EnemyHealth>();
+                if (enemyHealth != null)
+                {
+                    enemyHealth.TakeDamage(attackDamage);
+
+                    // Damage popup spawnla
+                    if (damageTextPrefab != null)
+                    {
+                        Vector3 spawnPos = enemy.transform.position + Vector3.up * 1.5f;
+                        GameObject popup = Instantiate(damageTextPrefab, spawnPos, Quaternion.identity);
+                        popup.GetComponent<DamagePopup>().SetDamage(attackDamage);
+                    }
+                }
             }
         }
     }
