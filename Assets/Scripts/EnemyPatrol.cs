@@ -2,27 +2,33 @@ using UnityEngine;
 
 public class EnemyPatrol : MonoBehaviour
 {
+    [Header("Hareket Ayarları")]
     public float speed = 2f;
     public float jumpForce = 8f;
+    public float spawnJumpDelay = 1f; // Oyun başı zıplama gecikmesi
+
+    [Header("AI Ayarları")]
     public float detectionRange = 5f;
     public float attackRange = 0.6f;
     public float attackCooldown = 1f;
     public float damage = 10f;
-    public AudioSource jumpSound;
 
     [Header("Referanslar")]
     public Transform player;
     public Transform groundCheck;
     public LayerMask groundLayer;
     public ParticleSystem jumpEffect;
+    public AudioSource jumpSound;
 
     private Rigidbody2D rb;
     private bool isGrounded;
     private float nextAttackTime = 0f;
+    private float gameStartTime;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        gameStartTime = Time.time;
         FindPlayer();
 
         if (jumpEffect == null)
@@ -43,7 +49,7 @@ public class EnemyPatrol : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (this == null || rb == null) return;
+        if (rb == null) return;
 
         if (player == null)
         {
@@ -51,16 +57,20 @@ public class EnemyPatrol : MonoBehaviour
             if (player == null) return;
         }
 
+        // Zeminde mi kontrolü
         if (groundCheck != null)
             isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
-        float direction = (distanceToPlayer < detectionRange) ? (player.position.x > transform.position.x ? 1 : -1) : 0;
+        float direction = 0f;
 
-        // Zıplama Mantığı
-        if (isGrounded && direction != 0)
+        if (distanceToPlayer < detectionRange)
+            direction = (player.position.x > transform.position.x) ? 1f : -1f;
+
+        // Zıplama Mantığı - SADECE engel/boşluk varsa VE spawn gecikmesi bittiyse
+        if (isGrounded && direction != 0f && Time.time - gameStartTime > spawnJumpDelay)
         {
-            RaycastHit2D wallAhead = Physics2D.Raycast((Vector2)transform.position + new Vector2(0, 0.2f), new Vector2(direction, 0), 0.7f, groundLayer);
+            RaycastHit2D wallAhead = Physics2D.Raycast((Vector2)transform.position + Vector2.up * 0.2f, Vector2.right * direction, 0.7f, groundLayer);
             Vector2 checkPos = (Vector2)transform.position + new Vector2(direction * 0.5f, -0.5f);
             RaycastHit2D groundAhead = Physics2D.Raycast(checkPos, Vector2.down, 1f, groundLayer);
 
@@ -70,14 +80,9 @@ public class EnemyPatrol : MonoBehaviour
 
                 if (jumpEffect != null)
                 {
-                    Debug.Log("jumpEffect bulundu"); // Tırnak işareti eklendi
                     jumpEffect.Stop();
                     jumpEffect.Clear();
                     jumpEffect.Play();
-                }
-                else
-                {
-                    Debug.LogError("HATA bulunamadı"); // Tırnak işareti eklendi
                 }
 
                 if (jumpSound != null)
@@ -90,7 +95,7 @@ public class EnemyPatrol : MonoBehaviour
         // Hareket Mantığı
         if (distanceToPlayer < attackRange)
         {
-            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
         }
         else if (isGrounded)
         {
@@ -100,24 +105,15 @@ public class EnemyPatrol : MonoBehaviour
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        // Tag'in "Player" olduğundan emin ol
         if (collision.gameObject.CompareTag("Player"))
         {
-            // ÖNEMLİ: MovePlayer scriptini doğrudan çağırıyoruz
             MovePlayer playerScript = collision.gameObject.GetComponent<MovePlayer>();
 
             if (playerScript != null && Time.time >= nextAttackTime)
             {
-                // Knockback yönünü hesapla (Enemy'den Player'a doğru)
                 Vector2 knockbackDir = (collision.transform.position - transform.position).normalized;
-
-                // Hasar ver ve knockback uygula
                 playerScript.TakeDamage(damage, knockbackDir);
-
-                // Cooldown'ı başlat
                 nextAttackTime = Time.time + attackCooldown;
-
-                Debug.Log("Enemy oyuncuya çarptı ve hasar verdi!");
             }
         }
     }
