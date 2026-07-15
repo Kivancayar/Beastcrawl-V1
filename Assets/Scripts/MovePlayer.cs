@@ -6,10 +6,17 @@ public class MovePlayer : MonoBehaviour
 {
     [Header("Hareket ve Zıplama")]
     public float moveSpeed = 8f;
+    public float acceleration = 15f;
+    public float deceleration = 15f;
     public float jumpForce = 12f;
     public Transform groundCheck;
     public LayerMask groundLayer;
     private bool isGrounded;
+    private bool isHitStopped = false;
+
+    [Header("HİSSİYAT AYARLARI YENİ")]
+    public float hitStopDuration = 0.08f;
+    public float attackKnockback = 8f;
 
     [Header("Damage Popup")]
     public GameObject damageTextPrefab;
@@ -19,7 +26,6 @@ public class MovePlayer : MonoBehaviour
     public float attackRange = 1f;
     public float attackDamage = 20f;
     public LayerMask enemyLayer;
-
     public float attackCooldown = 0.4f;
     private float nextAttackTime = 0f;
 
@@ -47,8 +53,8 @@ public class MovePlayer : MonoBehaviour
     private LineRenderer laserLine;
 
     [Header("Can ve Mana")]
-    public float maxHealth = 100f; // MAX CAN
-    public float playerHealth = 100f; // ŞU ANKİ CAN
+    public float maxHealth = 100f;
+    public float playerHealth = 100f;
     public float playerMana = 100f;
     public float manaRegenSpeed = 10f;
     public Slider healthSlider;
@@ -57,7 +63,7 @@ public class MovePlayer : MonoBehaviour
     private Rigidbody2D rb;
     private float originalGravity;
     public SpriteRenderer sr;
-    public Color originalColor; // Karakterin normal rengini saklıyacaz
+    public Color originalColor;
 
     void Start()
     {
@@ -69,7 +75,7 @@ public class MovePlayer : MonoBehaviour
             if (laserLine != null) laserLine.enabled = false;
         }
         sr = GetComponent<SpriteRenderer>();
-        originalColor = sr.color; // Başlangıç rengini kaydet
+        originalColor = sr.color;
         if (healthSlider)
         {
             healthSlider.maxValue = maxHealth;
@@ -79,12 +85,10 @@ public class MovePlayer : MonoBehaviour
 
     void Update()
     {
+        if (isHitStopped) return; // ESKİ HİTSTOP SİLİNDİ
         if (isDashing || isKnockback) return;
 
-        if (healthSlider)
-        {
-            healthSlider.value = playerHealth; // sadece value değişsin
-        }
+        if (healthSlider) healthSlider.value = playerHealth;
         if (manaSlider) manaSlider.value = playerMana;
 
         HandleMovement();
@@ -99,7 +103,10 @@ public class MovePlayer : MonoBehaviour
         {
             float moveInput = Input.GetAxisRaw("Horizontal");
             if (moveInput != 0) lastFacingDirection = moveInput;
-            rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+            float targetSpeed = moveInput * moveSpeed;
+            float currentSpeed = rb.linearVelocity.x;
+            float smoothSpeed = Mathf.Lerp(currentSpeed, targetSpeed, 0.2f);
+            rb.linearVelocity = new Vector2(smoothSpeed, rb.linearVelocity.y);
 
             Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             transform.localScale = new Vector3(mousePos.x > transform.position.x ? 1 : -1, 1, 1);
@@ -112,16 +119,25 @@ public class MovePlayer : MonoBehaviour
         }
         else
         {
-            rb.linearVelocity = Vector2.zero;
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
         }
     }
 
     void HandleLaser()
     {
+        if (isCharging && playerMana <= 0.1f)
+        {
+            StopLaser();
+            return;
+        }
+
         if (Input.GetKeyDown(KeyCode.F) && playerMana > 5f)
         {
-            isCharging = true; isLaserFiring = false; currentChargeTimer = 0f;
-            rb.gravityScale = 0f; rb.linearVelocity = Vector2.zero;
+            isCharging = true;
+            isLaserFiring = false;
+            currentChargeTimer = 0f;
+            rb.gravityScale = 0f;
+            rb.linearVelocity = Vector2.zero;
         }
 
         if (isCharging && Input.GetKey(KeyCode.F))
@@ -131,27 +147,41 @@ public class MovePlayer : MonoBehaviour
                 currentChargeTimer += Time.deltaTime;
                 if (currentChargeTimer >= 1f) isLaserFiring = true;
             }
-            else if (playerMana > 0)
+            else
             {
                 playerMana -= laserManaCostPerSecond * Time.deltaTime;
-                Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                Vector2 dir = (mousePos - firePoint.position).normalized;
-                RaycastHit2D hit = Physics2D.CircleCast(firePoint.position, 1f, dir, laserRange, canavarLayerMask);
+                playerMana = Mathf.Clamp(playerMana, 0, 100);
 
-                if (laserLine)
+                Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                mousePos.z = 0f; // 2D İÇİN ŞART
+
+                Vector2 dir = (mousePos - firePoint.position).normalized;
+                RaycastHit2D hit = Physics2D.Raycast(firePoint.position, dir, laserRange, canavarLayerMask);
+
+                if (laserLine) // BURASI EKSİKTİ
                 {
                     laserLine.enabled = true;
                     laserLine.SetPosition(0, firePoint.position);
-                    laserLine.SetPosition(1, hit.collider ? hit.point : (Vector2)firePoint.position + dir * laserRange);
-                }
-                if (hit.collider) hit.collider.GetComponent<EnemyHealth>()?.TakeDamage(laserDamage * Time.deltaTime);
+                    Vector3 endPos = hit.collider ? hit.point : firePoint.position + (Vector3)dir * laserRange;
+                    laserLine.SetPosition(1, endPos);
+                } // BURAYI KAPATTIM
+
+                if (hit.collider)
+                    hit.collider.GetComponent<EnemyHealth>()?.TakeDamage(laserDamage * Time.deltaTime);
             }
         }
-        else if (Input.GetKeyUp(KeyCode.F) && isCharging)
+        else if (Input.GetKeyUp(KeyCode.F) && isCharging) // BURASI DA EKSİKTİ
         {
-            isCharging = false; rb.gravityScale = originalGravity;
-            if (laserLine) laserLine.enabled = false;
+            StopLaser();
         }
+    }
+
+    void StopLaser()
+    {
+        isCharging = false;
+        isLaserFiring = false;
+        rb.gravityScale = originalGravity;
+        if (laserLine) laserLine.enabled = false;
     }
 
     void RegenerateMana()
@@ -166,6 +196,7 @@ public class MovePlayer : MonoBehaviour
         rb.linearVelocity = new Vector2(lastFacingDirection * dashForce, 0f);
         yield return new WaitForSeconds(dashTime);
         rb.gravityScale = oldGrav; isDashing = false;
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x * 0.2f, rb.linearVelocity.y);
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
     }
@@ -173,8 +204,7 @@ public class MovePlayer : MonoBehaviour
     public void TakeDamage(float amount, Vector2 knockbackDirection)
     {
         if (isKnockback) return;
-        playerHealth -= amount; // Burası böyle kalacak
-
+        playerHealth -= amount;
         rb.linearVelocity = Vector2.zero;
         rb.AddForce(new Vector2(knockbackDirection.x * yanaItmeGucu, knockbackDirection.y * yukariItmeGucu), ForceMode2D.Impulse);
         StartCoroutine(KnockbackRoutine());
@@ -187,42 +217,46 @@ public class MovePlayer : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
         isKnockback = false;
     }
+
     void HandleM1Attack()
     {
-        if (Input.GetMouseButtonDown(0) && Time.time >= nextAttackTime)
+        if (Input.GetMouseButtonDown(0) && Time.time >= nextAttackTime && !isHitStopped)
         {
             nextAttackTime = Time.time + attackCooldown;
-
-            Debug.Log("M1 Attack!");
-
-            Collider2D[] enemies = Physics2D.OverlapCircleAll(
-                attackPoint.position,
-                attackRange,
-                enemyLayer
-            );
+            Collider2D[] enemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayer);
 
             foreach (Collider2D enemy in enemies)
             {
                 EnemyHealth enemyHealth = enemy.GetComponent<EnemyHealth>();
                 if (enemyHealth != null)
                 {
+                    StartCoroutine(HitStopRoutine());
+                    Vector2 knockDir = (enemy.transform.position - transform.position).normalized;
+                    enemy.GetComponent<Rigidbody2D>()?.AddForce(knockDir * attackKnockback, ForceMode2D.Impulse);
                     enemyHealth.TakeDamage(attackDamage);
 
-                    // Damage popup spawnla
                     if (damageTextPrefab != null)
                     {
                         Vector3 spawnPos = enemy.transform.position + Vector3.up * 1.5f;
                         GameObject popup = Instantiate(damageTextPrefab, spawnPos, Quaternion.identity);
                         popup.GetComponent<DamagePopup>().SetDamage(attackDamage);
+                        Destroy(popup, 1f);
                     }
                 }
             }
         }
     }
+
+    IEnumerator HitStopRoutine()
+    {
+        isHitStopped = true;
+        yield return new WaitForSeconds(hitStopDuration);
+        isHitStopped = false;
+    }
+
     void OnDrawGizmosSelected()
     {
         if (attackPoint == null) return;
-
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(attackPoint.position, attackRange);
     }
