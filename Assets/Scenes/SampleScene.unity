@@ -2186,6 +2186,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8424610630026202666, guid: 6ebf0ae4767cb744c94d6b340a9d09dd, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8424610630026202666, guid: 6ebf0ae4767cb744c94d6b340a9d09dd, type: 3}
       propertyPath: m_SpriteTilingProperty.newSize.x
       value: 2.1333334
       objectReference: {fileID: 0}
@@ -2339,7 +2343,7 @@ Animator:
   m_GameObject: {fileID: 8235478206345069865}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: d517018870fd62347b57920818c888ef, type: 2}
+  m_Controller: {fileID: 9100000, guid: 4206cfe2a3b3865439475ea31a72cba6, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
