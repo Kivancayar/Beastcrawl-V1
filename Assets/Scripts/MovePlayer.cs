@@ -64,22 +64,31 @@ public class MovePlayer : MonoBehaviour
     private float originalGravity;
     public SpriteRenderer sr;
     public Color originalColor;
+    [SerializeField] private Animator animator;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         originalGravity = rb.gravityScale;
+
         if (firePoint != null)
         {
             laserLine = firePoint.GetComponent<LineRenderer>();
             if (laserLine != null) laserLine.enabled = false;
         }
+
         sr = GetComponent<SpriteRenderer>();
         originalColor = sr.color;
+
         if (healthSlider)
         {
             healthSlider.maxValue = maxHealth;
             healthSlider.value = playerHealth;
+        }
+
+        if (animator == null)
+        {
+            Debug.LogError("Animator is not assigned!");
         }
     }
 
