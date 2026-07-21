@@ -111,6 +111,9 @@ public class MovePlayer : MonoBehaviour
         if (!isCharging)
         {
             float moveInput = Input.GetAxisRaw("Horizontal");
+
+            animator.SetFloat("Speed", Mathf.Abs(moveInput));
+
             if (moveInput != 0) lastFacingDirection = moveInput;
             float targetSpeed = moveInput * moveSpeed;
             float currentSpeed = rb.linearVelocity.x;
