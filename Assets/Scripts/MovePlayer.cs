@@ -59,6 +59,8 @@ public class MovePlayer : MonoBehaviour
     public float manaRegenSpeed = 10f;
     public Slider healthSlider;
     public Slider manaSlider;
+    public RectTransform
+        healthBarRect;
 
     private Rigidbody2D rb;
     private float originalGravity;
@@ -104,6 +106,10 @@ public class MovePlayer : MonoBehaviour
         HandleLaser();
         RegenerateMana();
         HandleM1Attack();
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            IncreaseMaxHealth(20f);
+        }
     }
 
     void HandleMovement()
@@ -271,5 +277,24 @@ public class MovePlayer : MonoBehaviour
         if (attackPoint == null) return;
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(attackPoint.position, attackRange);
+    }
+    public void IncreaseMaxHealth(float amount)
+    {
+        Debug.Log(maxHealth);
+        maxHealth += amount;
+        playerHealth = maxHealth;
+
+        if (healthSlider != null)
+        {
+            healthSlider.maxValue = maxHealth;
+            healthSlider.value = playerHealth;
+        }
+
+        if (healthBarRect != null)
+        {
+            healthBarRect.SetSizeWithCurrentAnchors(
+       RectTransform.Axis.Horizontal,
+       healthBarRect.rect.width + 30f);
+        }
     }
 }

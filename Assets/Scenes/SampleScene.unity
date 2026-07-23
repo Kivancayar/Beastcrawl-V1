@@ -2170,6 +2170,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 728309755}
     - target: {fileID: 4436829246201904186, guid: 6ebf0ae4767cb744c94d6b340a9d09dd, type: 3}
+      propertyPath: healthBarRect
+      value: 
+      objectReference: {fileID: 6866373652133489371, guid: 9757b5194796c794f91f176f10fc2a23, type: 3}
+    - target: {fileID: 4436829246201904186, guid: 6ebf0ae4767cb744c94d6b340a9d09dd, type: 3}
       propertyPath: damageTextPrefab
       value: 
       objectReference: {fileID: 1536291230891942633, guid: 7eaaadc600d8d524abbab3d6192d4172, type: 3}
@@ -2366,10 +2370,10 @@ SceneRoots:
   - {fileID: 619394802}
   - {fileID: 519420032}
   - {fileID: 8235478206345069864}
-  - {fileID: 96041349}
   - {fileID: 7676335936339274551}
   - {fileID: 1012834316}
   - {fileID: 410972545}
   - {fileID: 1540932683704921546}
   - {fileID: 2015943997}
   - {fileID: 575135786}
+  - {fileID: 96041349}
