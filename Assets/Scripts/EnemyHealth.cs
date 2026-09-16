@@ -73,6 +73,8 @@ public class EnemyHealth : MonoBehaviour
         if (isDead) return;
         isDead = true;
 
+        GameManager.killScore += 1;
+
         Debug.Log("Die fonksiyonuna girildi!"); // <-- Bunu mutlaka ekle!
 
         if (coinPrefab != null)

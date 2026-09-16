@@ -59,14 +59,13 @@ public class MovePlayer : MonoBehaviour
     public float manaRegenSpeed = 10f;
     public Slider healthSlider;
     public Slider manaSlider;
-    public RectTransform
-        healthBarRect;
+    public RectTransform healthBarRect;
 
     private Rigidbody2D rb;
     private float originalGravity;
     public SpriteRenderer sr;
     public Color originalColor;
-    [SerializeField] private Animator animator;
+    // ANIMATOR TAMAMEN KALDIRILDI
 
     void Start()
     {
@@ -87,16 +86,11 @@ public class MovePlayer : MonoBehaviour
             healthSlider.maxValue = maxHealth;
             healthSlider.value = playerHealth;
         }
-
-        if (animator == null)
-        {
-            Debug.LogError("Animator is not assigned!");
-        }
     }
 
     void Update()
     {
-        if (isHitStopped) return; // ESKİ HİTSTOP SİLİNDİ
+        if (isHitStopped) return;
         if (isDashing || isKnockback) return;
 
         if (healthSlider) healthSlider.value = playerHealth;
@@ -118,7 +112,7 @@ public class MovePlayer : MonoBehaviour
         {
             float moveInput = Input.GetAxisRaw("Horizontal");
 
-            animator.SetFloat("Speed", Mathf.Abs(moveInput));
+            // Animator satırı silindi
 
             if (moveInput != 0) lastFacingDirection = moveInput;
             float targetSpeed = moveInput * moveSpeed;
@@ -171,24 +165,24 @@ public class MovePlayer : MonoBehaviour
                 playerMana = Mathf.Clamp(playerMana, 0, 100);
 
                 Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                mousePos.z = 0f; // 2D İÇİN ŞART
+                mousePos.z = 0f;
 
                 Vector2 dir = (mousePos - firePoint.position).normalized;
                 RaycastHit2D hit = Physics2D.Raycast(firePoint.position, dir, laserRange, canavarLayerMask);
 
-                if (laserLine) // BURASI EKSİKTİ
+                if (laserLine)
                 {
                     laserLine.enabled = true;
                     laserLine.SetPosition(0, firePoint.position);
                     Vector3 endPos = hit.collider ? hit.point : firePoint.position + (Vector3)dir * laserRange;
                     laserLine.SetPosition(1, endPos);
-                } // BURAYI KAPATTIM
+                }
 
                 if (hit.collider)
                     hit.collider.GetComponent<EnemyHealth>()?.TakeDamage(laserDamage * Time.deltaTime);
             }
         }
-        else if (Input.GetKeyUp(KeyCode.F) && isCharging) // BURASI DA EKSİKTİ
+        else if (Input.GetKeyUp(KeyCode.F) && isCharging)
         {
             StopLaser();
         }
@@ -278,9 +272,9 @@ public class MovePlayer : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(attackPoint.position, attackRange);
     }
+
     public void IncreaseMaxHealth(float amount)
     {
-        Debug.Log(maxHealth);
         maxHealth += amount;
         playerHealth = maxHealth;
 
@@ -292,9 +286,7 @@ public class MovePlayer : MonoBehaviour
 
         if (healthBarRect != null)
         {
-            healthBarRect.SetSizeWithCurrentAnchors(
-       RectTransform.Axis.Horizontal,
-       healthBarRect.rect.width + 30f);
+            healthBarRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, healthBarRect.rect.width + 30f);
         }
     }
 }

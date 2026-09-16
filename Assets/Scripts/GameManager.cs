@@ -1,14 +1,20 @@
 using UnityEngine;
-using UnityEngine.UI; // UI kütüphanesini eklemeyi unutma
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
     public static int score = 0;
-    public Text scoreText; // Ekranda göstereceğimiz yazı alanı
+    public Text scoreText;
+
+    public static int killScore = 0;
+    public Text killScoreText;
 
     void Update()
     {
-        // Her karede skor yazısını güncelle
-        scoreText.text = "Score: " + score.ToString();
+        // Coin sayısı
+        scoreText.text = "Coins: " + score.ToString();
+
+        // Kill skoru
+        killScoreText.text = "Score: " + killScore.ToString();
     }
 }
